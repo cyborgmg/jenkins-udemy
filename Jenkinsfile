@@ -5,14 +5,14 @@ pipeline {
     stages{
         stage('Build BackEnd'){
            steps {
-                dir('backend') {
+                dir('tasks-backend') {
                     sh label: 'Maven - Build', script: 'mvn clean package -DskipeTests=true'
                 } 
             }
         }
         stage('Unit Tests'){
            steps {
-                dir('backend') {
+                dir('tasks-backend') {
                     sh label: 'Maven - Test', script: 'mvn test'
                 }
             }
@@ -23,7 +23,7 @@ pipeline {
                 scannerHome = tool 'SONAR_SCANNER'
             }
             steps {
-                dir('backend') {
+                dir('tasks-backend') {
                     withSonarQubeEnv('SONAR_LOCAL'){
                         sh label: 'Sonar - Scanner', script: "${scannerHome}/bin/sonar-scanner -e -Dsonar.projectKey=DeployBack -Dsonar.host.url=http://192.168.0.8:9000/ -Dsonar.login=94e712ccbc4ae692be9fb579c9eb332c0b386c4f -Dsonar.java.binaries=target -Dsonar.coverage.exclusions=**/src/test/**,**/model/**,**Application.java"
                     }
@@ -32,7 +32,7 @@ pipeline {
         }
         stage ("Quality Gate") {
             steps {
-                dir('backend') {
+                dir('tasks-backend') {
                     sleep(20)
                     timeout(time: 1, unit: 'MINUTES') {
                         waitForQualityGate abortPipeline: true
@@ -48,23 +48,23 @@ pipeline {
         }
         stage('Deploy Backend'){
            steps {
-                dir('backend') {
+                dir('tasks-backend') {
                     deploy adapters: [tomcat8(credentialsId: 'admin', path: '', url: 'http://192.168.0.8:8001')], contextPath: 'tasks-backend', war: 'target/tasks-backend.war'
                 }
             }
         }
         stage('Api Test'){
            steps {
-                dir('api-test') {
-                    git branch: 'main', credentialsId: '621667b3-cd45-4d59-8e48-004141311fb3', url: 'https://github.com/cyborgmg/tasks-api-test.git'
+                dir('tasks-api-test') {
+                    //git branch: 'main', credentialsId: '621667b3-cd45-4d59-8e48-004141311fb3', url: 'https://github.com/cyborgmg/tasks-api-test.git'
                     sh label: 'Maven - Test Api', script: 'mvn clean package'
                 }
             } 
         }
         stage('Deploy Fontend'){
            steps {
-                dir('fontend') {
-                    git branch: 'master', credentialsId: '621667b3-cd45-4d59-8e48-004141311fb3', url: 'https://github.com/cyborgmg/tasks-frontend.git'
+                dir('tasks-frontend') {
+                    //git branch: 'master', credentialsId: '621667b3-cd45-4d59-8e48-004141311fb3', url: 'https://github.com/cyborgmg/tasks-frontend.git'
                     sh label: 'Maven - Frontend Clean Package', script: 'mvn clean package'
                     deploy adapters: [tomcat8(credentialsId: 'admin', path: '', url: 'http://192.168.0.8:8001')], contextPath: 'tasks', war: 'target/tasks.war'
                 }
@@ -72,9 +72,7 @@ pipeline {
         }
         stage('Publish Container'){
            steps {
-                dir('backend') {
-                    sh label: 'Maven - Test', script: "chmod 777 ./container.sh && ./container.sh"
-                }
+                sh label: 'Maven - Test', script: "chmod 777 ./container.sh && ./container.sh"
             }
         }
     }
