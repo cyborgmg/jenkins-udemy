@@ -12,4 +12,3 @@ sshpass -p c6b94gmg ssh cyborg@192.168.0.8 docker rmi -f $(docker images | grep 
 
 sshpass -p c6b94gmg ssh cyborg@192.168.0.8 docker build -f /home/cyborg/Dockers/tasks/Dockerfile /home/cyborg/Dockers/tasks/ -t cyborgmg/tasks:latest
 sshpass -p c6b94gmg ssh cyborg@192.168.0.8 docker run -d --name tasks --hostname tasks -p 8080:8080 cyborgmg/tasks:latest
-
