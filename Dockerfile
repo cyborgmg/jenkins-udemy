@@ -4,9 +4,9 @@ ENV USER root
 
 WORKDIR /root/
 
-COPY /home/cyborg/Dockers/tasks/tasks-backend.war /usr/local/tomcat/webapps/tasks-backend.war
+COPY tasks-backend.war /usr/local/tomcat/webapps/tasks-backend.war
 
-COPY /home/cyborg/Dockers/tasks/tasks.war /usr/local/tomcat/webapps/tasks.war
+COPY tasks.war /usr/local/tomcat/webapps/tasks.war
 
 EXPOSE 8080
 
